@@ -51,10 +51,13 @@ final class TabsBarOverlay: UIViewController, UITabBarDelegate {
     private var idToIndex: [String: Int] = [:]
     private let tabBar = UITabBar()
     var onSelected: ((String) -> Void)?
+    var onLongPress: ((String) -> Void)?
     
     // Color configuration
     private var selectedIconColor: UIColor?
     private var unselectedIconColor: UIColor?
+    private var titleOpacity: CGFloat = 0.7
+    private var longPressRecognizer: UILongPressGestureRecognizer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,6 +66,10 @@ final class TabsBarOverlay: UIViewController, UITabBarDelegate {
         tabBar.translatesAutoresizingMaskIntoConstraints = false
         tabBar.delegate = self
         view.addSubview(tabBar)
+        
+        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        tabBar.addGestureRecognizer(longPressRecognizer)
+        self.longPressRecognizer = longPressRecognizer
 
         NSLayoutConstraint.activate([
             tabBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -79,11 +86,13 @@ final class TabsBarOverlay: UIViewController, UITabBarDelegate {
     ///   - visible: Whether the tab bar should be visible
     ///   - selectedIconColor: Optional color for selected tab icons
     ///   - unselectedIconColor: Optional color for unselected tab icons
+    ///   - titleOpacity: Opacity applied to tab titles
     /// - Note: This method should only be called on the main thread
-    func update(items: [TabsBarItem], initialId: String?, visible: Bool, selectedIconColor: UIColor? = nil, unselectedIconColor: UIColor? = nil) {
+    func update(items: [TabsBarItem], initialId: String?, visible: Bool, selectedIconColor: UIColor? = nil, unselectedIconColor: UIColor? = nil, titleOpacity: CGFloat = 0.7) {
         self.items = items
         self.selectedIconColor = selectedIconColor
         self.unselectedIconColor = unselectedIconColor
+        self.titleOpacity = max(0.0, min(titleOpacity, 1.0))
         idToIndex = Dictionary(uniqueKeysWithValues: items.enumerated().map { ($0.element.id, $0.offset) })
 
         let barItems: [UITabBarItem] = items.enumerated().map { (idx, model) in
@@ -585,6 +594,50 @@ final class TabsBarOverlay: UIViewController, UITabBarDelegate {
         if let unselectedColor = unselectedIconColor {
             tabBar.unselectedItemTintColor = unselectedColor
         }
+        
+        applyTitleTextAttributes()
+    }
+    
+    /// Applies the configured title opacity to the tab bar items
+    private func applyTitleTextAttributes() {
+        let resolvedSelectedColor = selectedIconColor ?? UIColor.label
+        let baseUnselectedColor = unselectedIconColor ?? UIColor.label
+        let resolvedOpacity = max(0.0, min(titleOpacity, 1.0))
+        let resolvedUnselectedColor = baseUnselectedColor.withAlphaComponent(resolvedOpacity)
+        
+        let standardAppearance = tabBar.standardAppearance
+        configureTitleAttributes(
+            in: standardAppearance,
+            selectedColor: resolvedSelectedColor,
+            unselectedColor: resolvedUnselectedColor
+        )
+        tabBar.standardAppearance = standardAppearance
+        
+        if #available(iOS 15.0, *) {
+            let scrollAppearance = tabBar.scrollEdgeAppearance ?? (standardAppearance.copy() as? UITabBarAppearance) ?? standardAppearance
+            configureTitleAttributes(
+                in: scrollAppearance,
+                selectedColor: resolvedSelectedColor,
+                unselectedColor: resolvedUnselectedColor
+            )
+            tabBar.scrollEdgeAppearance = scrollAppearance
+        }
+    }
+    
+    /// Helper to apply title attributes to all layout appearances
+    private func configureTitleAttributes(
+        in appearance: UITabBarAppearance,
+        selectedColor: UIColor,
+        unselectedColor: UIColor
+    ) {
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes[.foregroundColor] = selectedColor
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes[.foregroundColor] = unselectedColor
+        
+        appearance.inlineLayoutAppearance.selected.titleTextAttributes[.foregroundColor] = selectedColor
+        appearance.inlineLayoutAppearance.normal.titleTextAttributes[.foregroundColor] = unselectedColor
+        
+        appearance.compactInlineLayoutAppearance.selected.titleTextAttributes[.foregroundColor] = selectedColor
+        appearance.compactInlineLayoutAppearance.normal.titleTextAttributes[.foregroundColor] = unselectedColor
     }
 
     // MARK: UITabBarDelegate
@@ -598,5 +651,27 @@ final class TabsBarOverlay: UIViewController, UITabBarDelegate {
         // Ensure colors are applied after selection
         applyColorConfiguration()
         onSelected?(items[idx].id)
+    }
+    
+    // MARK: Long press handling
+    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else { return }
+        let location = gesture.location(in: tabBar)
+        guard let index = indexForTab(at: location),
+              index >= 0,
+              index < items.count else { return }
+        onLongPress?(items[index].id)
+    }
+    
+    /// Finds the index of the tab associated with a touch location
+    /// - Parameter point: The touch location within the tab bar
+    /// - Returns: Tab index if found
+    private func indexForTab(at point: CGPoint) -> Int? {
+        guard let tabItems = tabBar.items, !tabItems.isEmpty else { return nil }
+        let width = tabBar.bounds.width / CGFloat(tabItems.count)
+        guard width > 0 else { return nil }
+        var index = Int(point.x / width)
+        index = max(0, min(index, tabItems.count - 1))
+        return index
     }
 }

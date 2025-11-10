@@ -45,6 +45,8 @@ interface TabsBarConfigureOptions {
     selectedIconColor?: string;
     /** Color for unselected tab icons (hex or RGBA format) */
     unselectedIconColor?: string;
+    /** Opacity applied to tab titles (0-1, default 0.7) */
+    titleOpacity?: number;
 }
 interface SelectOptions {
     id: string;
@@ -68,6 +70,12 @@ interface TabsBarPlugin {
     getSafeAreaInsets(): Promise<SafeAreaInsets>;
     /** Fires when user taps a tab */
     addListener(eventName: "selected", listenerFunc: (ev: {
+        id: string;
+    }) => void): Promise<{
+        remove: () => void;
+    }>;
+    /** Fires when user long-presses a tab */
+    addListener(eventName: "longPress", listenerFunc: (ev: {
         id: string;
     }) => void): Promise<{
         remove: () => void;

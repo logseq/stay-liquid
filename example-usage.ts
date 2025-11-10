@@ -197,6 +197,24 @@ async function configureWithoutColors() {
   });
 }
 
+// Example 8: Configure title opacity + long press listener
+async function configureWithTitleOpacityAndLongPress() {
+  await TabsBar.configure({
+    items: [
+      { id: 'feed', title: 'Feed', systemIcon: 'list.bullet' },
+      { id: 'compose', title: 'New', systemIcon: 'square.and.pencil' },
+      { id: 'profile', title: 'Me', systemIcon: 'person.circle' }
+    ],
+    initialId: 'feed',
+    visible: true,
+    titleOpacity: 0.7
+  });
+
+  await TabsBar.addListener('longPress', ({ id }) => {
+    console.log(`Long-pressed tab: ${id}`);
+  });
+}
+
 // Export all examples for testing
 export {
   configureWithHexColors,
@@ -205,7 +223,8 @@ export {
   configureWithAlphaHexColors,
   configureWithInvalidColors,
   dynamicColorChanges,
-  configureWithoutColors
+  configureWithoutColors,
+  configureWithTitleOpacityAndLongPress
 };
 
 // Usage instructions:

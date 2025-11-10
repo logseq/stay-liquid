@@ -62,7 +62,8 @@ Then in you class add an `ionViewDidEnter()`  method that initiates the Liquid G
       ],
       // Optional: Customize tab icon colors
       selectedIconColor: '#007AFF',      // Blue for selected tab
-      unselectedIconColor: '#8E8E93'     // Gray for unselected tabs
+      unselectedIconColor: '#8E8E93',    // Gray for unselected tabs
+      titleOpacity: 0.7                  // Dim tab titles when unselected
     });
 
     // Native → JS (user taps native tab)
@@ -116,6 +117,7 @@ await TabsBar.configure({
   // Color customization options
   selectedIconColor: '#FF5733',           // Hex color for selected tab
   unselectedIconColor: 'rgba(142, 142, 147, 0.6)', // RGBA color for unselected tabs
+  titleOpacity: 0.7                       // Optional title opacity (0-1)
 });
 ```
 
@@ -133,7 +135,8 @@ await TabsBar.configure({
 await TabsBar.configure({
   items: [...],
   selectedIconColor: 'rgba(0, 122, 255, 1.0)',    // Blue with full opacity
-  unselectedIconColor: 'rgba(142, 142, 147, 0.6)' // Gray with 60% opacity
+  unselectedIconColor: 'rgba(142, 142, 147, 0.6)', // Gray with 60% opacity
+  titleOpacity: 0.7
 });
 
 // Example 3: Using short hex notation
@@ -159,6 +162,27 @@ setTimeout(async () => {
 - Colors are validated on both TypeScript and iOS sides
 - Color changes apply immediately and persist across tab selections
 - If no colors are specified, the system uses iOS default colors
+
+## 📝 Title Styling
+
+Need to dim your tab titles without touching icon colors? Set `titleOpacity` (0–1, defaults to `0.7`) to apply a consistent alpha to unselected tab labels while keeping the selected title full strength.
+
+```tsx
+await TabsBar.configure({
+  items: [...],
+  titleOpacity: 0.7, // 70% opacity for unselected titles
+});
+```
+
+## 👆 Long-Press Events
+
+Stay Liquid now differentiates between quick taps and intentional press-and-hold gestures. Listen for the new `longPress` event to trigger secondary actions (tooltips, context menus, etc.) without hijacking the main navigation tap.
+
+```tsx
+await TabsBar.addListener('longPress', ({ id }) => {
+  console.log('User long-pressed tab:', id);
+});
+```
 
 ## 🖼️ Image Icon Support
 

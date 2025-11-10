@@ -497,6 +497,19 @@ public class TabsBarPlugin: CAPPlugin {
         // Parse color options
         let selectedIconColor = ColorUtils.parseColor(call.getString("selectedIconColor"))
         let unselectedIconColor = ColorUtils.parseColor(call.getString("unselectedIconColor"))
+        let defaultTitleOpacity: Double = 0.7
+        let requestedTitleOpacity = call.getDouble("titleOpacity")
+        let titleOpacity: CGFloat
+        if let requestedTitleOpacity {
+            if requestedTitleOpacity >= 0.0 && requestedTitleOpacity <= 1.0 {
+                titleOpacity = CGFloat(requestedTitleOpacity)
+            } else {
+                print("TabsBar Warning: titleOpacity must be between 0 and 1. Using default of \(defaultTitleOpacity).")
+                titleOpacity = CGFloat(defaultTitleOpacity)
+            }
+        } else {
+            titleOpacity = CGFloat(defaultTitleOpacity)
+        }
         
         // Log warnings for invalid colors but continue with defaults
         if call.getString("selectedIconColor") != nil && selectedIconColor == nil {
@@ -549,7 +562,8 @@ public class TabsBarPlugin: CAPPlugin {
                 initialId: initialId,
                 visible: visible,
                 selectedIconColor: selectedIconColor,
-                unselectedIconColor: unselectedIconColor
+                unselectedIconColor: unselectedIconColor,
+                titleOpacity: titleOpacity
             )
         }
         call.resolve()
@@ -640,6 +654,9 @@ public class TabsBarPlugin: CAPPlugin {
         overlay.onSelected = { [weak self, weak overlay] id in
             guard let self = self, let overlay = overlay else { return }
             self.notifyListeners("selected", data: ["id": id])
+        }
+        overlay.onLongPress = { [weak self] id in
+            self?.notifyListeners("longPress", data: ["id": id])
         }
 
         hostVC.addChild(overlay)

@@ -595,11 +595,8 @@ public class TabsBarPlugin: CAPPlugin {
                 self.handleError(call, message: "Overlay not initialized")
                 return
             }
-            overlay.view.isHidden = false
+            overlay.view.isHidden = true
             overlay.view.isUserInteractionEnabled = false
-                        UIView.animate(withDuration: 0.25) {
-                overlay.view.alpha = 0
-            }
         }
         call.resolve()
     }

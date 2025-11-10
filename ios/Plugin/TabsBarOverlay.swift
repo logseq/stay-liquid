@@ -75,22 +75,12 @@ final class TabsBarOverlay: UIViewController, UITabBarDelegate, UIGestureRecogni
         tabBar.delegate = self
         view.addSubview(tabBar)
 
-        let safeArea = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
             tabBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tabBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tabBar.topAnchor.constraint(equalTo: view.topAnchor),
-            tabBar.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor)
+            tabBar.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        setNeedsUpdateOfScreenEdgesDeferringSystemGestures()
-    }
-    
-    override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge {
-        return .bottom
     }
 
     /// Updates the tab bar with new items and configuration

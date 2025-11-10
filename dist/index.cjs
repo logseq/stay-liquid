@@ -183,13 +183,17 @@ var init_web = __esm({
         if (options.unselectedIconColor && !isValidColor(options.unselectedIconColor)) {
           console.warn(`TabsBar: Invalid unselectedIconColor format: ${options.unselectedIconColor}`);
         }
+        if (options.titleOpacity !== void 0 && (options.titleOpacity < 0 || options.titleOpacity > 1)) {
+          console.warn(`TabsBar: titleOpacity must be between 0 and 1. Received: ${options.titleOpacity}`);
+        }
         await this.validateAndPreloadImages(options.items);
         console.log("TabsBar configured with options:", {
           itemCount: options.items.length,
           initialId: options.initialId,
           visible: options.visible,
           hasSelectedColor: !!options.selectedIconColor,
-          hasUnselectedColor: !!options.unselectedIconColor
+          hasUnselectedColor: !!options.unselectedIconColor,
+          titleOpacity: options.titleOpacity
         });
       }
       async validateAndPreloadImages(items) {

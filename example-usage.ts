@@ -210,8 +210,10 @@ async function configureWithTitleOpacityAndLongPress() {
     titleOpacity: 0.7
   });
 
-  await TabsBar.addListener('longPress', ({ id }) => {
-    console.log(`Long-pressed tab: ${id}`);
+  await TabsBar.addListener('selected', ({ id, interaction }) => {
+    if (interaction === 'longPress') {
+      console.log(`Long-pressed tab: ${id}`);
+    }
   });
 }
 

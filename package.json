@@ -1,5 +1,5 @@
 {
-  "name": "stay-liquid",
+  "name": "@logseq/forked-stay-liquid",
   "version": "0.1.0",
   "description": "Native Liquid Glass for Ionic & Capacitor Applications.",
   "license": "MIT",
@@ -35,8 +35,11 @@
     "@capacitor/core": ">=6.0.0"
   },
   "devDependencies": {
+    "rimraf": "^5.0.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.4.0",
-    "rimraf": "^5.0.0"
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.4.4"
   }
 }

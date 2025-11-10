@@ -71,6 +71,13 @@ export interface SafeAreaInsets {
   top: number; bottom: number; left: number; right: number;
 }
 
+export type TabInteractionType = "tap" | "longPress";
+
+export interface TabSelectionEvent {
+  id: string;
+  interaction: TabInteractionType;
+}
+
 export interface TabsBarPlugin {
   configure(options: TabsBarConfigureOptions): Promise<void>;
   show(): Promise<void>;
@@ -79,15 +86,9 @@ export interface TabsBarPlugin {
   setBadge(options: SetBadgeOptions): Promise<void>;
   getSafeAreaInsets(): Promise<SafeAreaInsets>;
 
-  /** Fires when user taps a tab */
+  /** Fires when user taps or long-presses a tab */
   addListener(
     eventName: "selected",
-    listenerFunc: (ev: { id: string }) => void
-  ): Promise<{ remove: () => void }>;
-
-  /** Fires when user long-presses a tab */
-  addListener(
-    eventName: "longPress",
-    listenerFunc: (ev: { id: string }) => void
+    listenerFunc: (ev: TabSelectionEvent) => void
   ): Promise<{ remove: () => void }>;
 }

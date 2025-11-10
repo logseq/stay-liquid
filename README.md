@@ -66,9 +66,13 @@ Then in you class add an `ionViewDidEnter()`  method that initiates the Liquid G
       titleOpacity: 0.7                  // Dim tab titles when unselected
     });
 
-    // Native → JS (user taps native tab)
-    await TabsBar.addListener('selected', ({ id }: { id: string }) => {
-      this.router.navigateByUrl(`/tabs/${id}`);
+    // Native → JS (user taps or long-presses native tab)
+    await TabsBar.addListener('selected', ({ id, interaction }) => {
+      if (interaction === 'tap') {
+        this.router.navigateByUrl(`/tabs/${id}`);
+      } else {
+        console.log('Long press on tab', id);
+      }
     });
 
     // JS → Native (keep native highlight in sync with route)
@@ -174,13 +178,17 @@ await TabsBar.configure({
 });
 ```
 
-## 👆 Long-Press Events
+## 👆 Interaction Events
 
-Stay Liquid now differentiates between quick taps and intentional press-and-hold gestures. Listen for the new `longPress` event to trigger secondary actions (tooltips, context menus, etc.) without hijacking the main navigation tap.
+`TabsBar.addListener('selected', ...)` now tells you *how* the tab was triggered. Use the `interaction` field (`'tap' | 'longPress'`) to decide whether to navigate or show a secondary menu—no need to wire up two different events.
 
 ```tsx
-await TabsBar.addListener('longPress', ({ id }) => {
-  console.log('User long-pressed tab:', id);
+await TabsBar.addListener('selected', ({ id, interaction }) => {
+  if (interaction === 'tap') {
+    navigateTo(id);
+  } else {
+    presentQuickActionsFor(id);
+  }
 });
 ```
 

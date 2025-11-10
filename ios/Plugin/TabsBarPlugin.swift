@@ -651,12 +651,11 @@ public class TabsBarPlugin: CAPPlugin {
         guard let hostVC = bridge?.viewController else { return }
 
         let overlay = TabsBarOverlay()
-        overlay.onSelected = { [weak self, weak overlay] id in
-            guard let self = self, let overlay = overlay else { return }
-            self.notifyListeners("selected", data: ["id": id])
-        }
-        overlay.onLongPress = { [weak self] id in
-            self?.notifyListeners("longPress", data: ["id": id])
+        overlay.onInteraction = { [weak self] id, interaction in
+            self?.notifyListeners("selected", data: [
+                "id": id,
+                "interaction": interaction.rawValue
+            ])
         }
 
         hostVC.addChild(overlay)

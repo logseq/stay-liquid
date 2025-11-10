@@ -65,6 +65,7 @@ final class TabsBarOverlay: UIViewController, UITabBarDelegate, UIGestureRecogni
     private var longPressRecognizers: [UILongPressGestureRecognizer] = []
     private var suppressNextSelectionEvent = false
     private var lastSelectedIndex: Int?
+    private var needsGestureRefresh = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -108,7 +109,9 @@ final class TabsBarOverlay: UIViewController, UITabBarDelegate, UIGestureRecogni
             return item
         }
         tabBar.items = barItems
-        configureLongPressRecognizers()
+        needsGestureRefresh = true
+        tabBar.setNeedsLayout()
+        view.setNeedsLayout()
 
         // Apply color configuration
         applyColorConfiguration()
@@ -747,6 +750,7 @@ final class TabsBarOverlay: UIViewController, UITabBarDelegate, UIGestureRecogni
             button.addGestureRecognizer(recognizer)
             longPressRecognizers.append(recognizer)
         }
+        needsGestureRefresh = false
     }
     
     private func tabBarButtons() -> [UIView] {
@@ -760,5 +764,12 @@ final class TabsBarOverlay: UIViewController, UITabBarDelegate, UIGestureRecogni
     // MARK: UIGestureRecognizerDelegate
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if needsGestureRefresh || longPressRecognizers.count != tabBarButtons().count {
+            configureLongPressRecognizers()
+        }
     }
 }

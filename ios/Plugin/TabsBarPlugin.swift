@@ -578,6 +578,11 @@ public class TabsBarPlugin: CAPPlugin {
                 return
             }
             overlay.view.isHidden = false
+            overlay.view.isUserInteractionEnabled = true
+            // Fade the bar back in for a smoother transition
+            UIView.animate(withDuration: 0.25) {
+                overlay.view.alpha = 1.0
+            }
         }
         call.resolve()
     }
@@ -590,7 +595,12 @@ public class TabsBarPlugin: CAPPlugin {
                 self.handleError(call, message: "Overlay not initialized")
                 return
             }
-            overlay.view.isHidden = true
+            overlay.view.isHidden = false
+            overlay.view.isUserInteractionEnabled = false
+            // Dim the bar instead of abruptly hiding it to keep a hint of its presence
+            UIView.animate(withDuration: 0.25) {
+                overlay.view.alpha = 0.1
+            }
         }
         call.resolve()
     }
